@@ -1,11 +1,12 @@
 import User from "../models/user.model.js";
 import bcryptjs from "bcryptjs";
+import { errorHandler } from "../utils/error.js";
 
-export const signup = async (req, res) => {
+// function for signup
+export const signup = async (req, res, next) => {
   const { username, email, password } = req.body;
 
-  console.log(username, email, password);
-
+  // check all required fields
   if (
     !username ||
     !email ||
@@ -14,11 +15,13 @@ export const signup = async (req, res) => {
     email.trim().length === 0 ||
     password.trim().length === 0
   ) {
-    return res.status(400).json({ message: "All fields are requierd!!" });
+    next(errorHandler(400, "All fields are required!"));
   }
 
+  // hash the password using bcryptjs
   const hashedPassword = bcryptjs.hashSync(password, 10);
 
+  // create new schema document using upcoming fields
   const newUser = new User({
     username,
     password: hashedPassword,
@@ -26,6 +29,7 @@ export const signup = async (req, res) => {
   });
 
   try {
+    // save the newly created userSchema to DB
     await newUser.save();
     res.json("signup successfull");
   } catch (err) {
@@ -35,6 +39,6 @@ export const signup = async (req, res) => {
       err.message.includes("dup key: { email:") && (duplicate = "Email");
       err.message = `${duplicate} is already exist, please go to log in.`;
     }
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 };
