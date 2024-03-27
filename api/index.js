@@ -26,7 +26,7 @@ app.use("/api/auth", authRoutes);
 app.use((err, req, res, next) => {
   res.json({
     success: false,
-    statusCode: err.statusCode || 500,
+    status: err.status || 500,
     message: err.message || "Internal server error",
   });
 });

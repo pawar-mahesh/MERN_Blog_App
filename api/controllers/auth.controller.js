@@ -31,14 +31,19 @@ export const signup = async (req, res, next) => {
   try {
     // save the newly created userSchema to DB
     await newUser.save();
-    res.json("signup successfull");
+
+    res.json({
+      success: true,
+      status: 200,
+      message: "Signup Successfull",
+    });
   } catch (err) {
-    if (err.message.includes("E11000 duplicate key error collection")) {
-      let duplicate = "";
-      err.message.includes("dup key: { username:") && (duplicate = "Username");
-      err.message.includes("dup key: { email:") && (duplicate = "Email");
+    // Check for duplicate status code (i.e. 11000)
+    if (err.code === 11000) {
+      let duplicate = Object.keys(err.keyValue)[0];
+      duplicate = duplicate[0].toUpperCase() + duplicate.slice(1).toLowerCase();
       err.message = `${duplicate} is already exist, please go to log in.`;
     }
-    next(err);
+    next(errorHandler(400, err.message));
   }
 };
