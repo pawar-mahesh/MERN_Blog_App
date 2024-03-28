@@ -1,8 +1,29 @@
 import { Button, Label, TextInput } from "flowbite-react";
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 const SignUp = () => {
+  let isSignUpBtnDisabled = true;
+  const [enteredUsername, setEnteredUsername] = useState(null);
+  const [enteredEmail, setEnteredEmail] = useState(null);
+  const [enteredPassword, setEnteredPassword] = useState(null);
+
+  const onChangeUsername = (event) => {
+    setEnteredUsername(event.target.value.trim());
+  };
+
+  const onChangeEmail = (event) => {
+    setEnteredEmail(event.target.value.trim());
+  };
+
+  const onChangePassword = (event) => {
+    setEnteredPassword(event.target.value.trim());
+  };
+
+  if (enteredUsername && enteredEmail && enteredPassword) {
+    isSignUpBtnDisabled = false;
+  }
+
   return (
     <div className="min-h-screen mt-20">
       <div className="flex p-3 max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-5">
@@ -24,17 +45,36 @@ const SignUp = () => {
           <form className="flex flex-col gap-4">
             <div>
               <Label value="Username" />
-              <TextInput type="text" placeholder="Username" id="username" />
+              <TextInput
+                type="text"
+                placeholder="Username"
+                id="username"
+                onChange={onChangeUsername}
+              />
             </div>
             <div>
               <Label value="Email" />
-              <TextInput type="email" placeholder="Email" id="email" />
+              <TextInput
+                type="email"
+                placeholder="Email"
+                id="email"
+                onChange={onChangeEmail}
+              />
             </div>
             <div>
               <Label value="Password" />
-              <TextInput type="password" placeholder="Password" id="password" />
+              <TextInput
+                type="password"
+                placeholder="Password"
+                id="password"
+                onChange={onChangePassword}
+              />
             </div>
-            <Button gradientDuoTone="purpleToPink" type="submit">
+            <Button
+              gradientDuoTone="purpleToPink"
+              type="submit"
+              disabled={isSignUpBtnDisabled}
+            >
               Sign Up
             </Button>
           </form>
