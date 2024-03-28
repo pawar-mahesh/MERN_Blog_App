@@ -1,28 +1,52 @@
-import { Button, Label, TextInput } from "flowbite-react";
+import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const SignUp = () => {
   let isSignUpBtnDisabled = true;
-  const [enteredUsername, setEnteredUsername] = useState(null);
-  const [enteredEmail, setEnteredEmail] = useState(null);
-  const [enteredPassword, setEnteredPassword] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({});
+  const [errorMessage, setErrorMessage] = useState(null);
+  const navigate = useNavigate();
 
-  const onChangeUsername = (event) => {
-    setEnteredUsername(event.target.value.trim());
+  const onChangeInput = (event) => {
+    setFormData({ ...formData, [event.target.id]: event.target.value.trim() });
   };
 
-  const onChangeEmail = (event) => {
-    setEnteredEmail(event.target.value.trim());
-  };
-
-  const onChangePassword = (event) => {
-    setEnteredPassword(event.target.value.trim());
-  };
-
-  if (enteredUsername && enteredEmail && enteredPassword) {
+  if (formData.username && formData.email && formData.password) {
     isSignUpBtnDisabled = false;
   }
+
+  const onSubmitHandler = async (event) => {
+    event.preventDefault();
+    setIsLoading(true);
+    setErrorMessage(null);
+    try {
+      const res = await fetch("/api/auth/sign-up", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+
+      setIsLoading(false);
+
+      // success
+      if (data.success === true) {
+        navigate("/sign-in");
+      }
+
+      // failure
+      else {
+        setErrorMessage(data.message);
+      }
+    } catch (err) {
+      setIsLoading(false);
+      setErrorMessage(err.message);
+    }
+  };
 
   return (
     <div className="min-h-screen mt-20">
@@ -42,14 +66,14 @@ const SignUp = () => {
         </div>
         {/* right */}
         <div className="flex-1">
-          <form className="flex flex-col gap-4">
+          <form className="flex flex-col gap-4" onSubmit={onSubmitHandler}>
             <div>
               <Label value="Username" />
               <TextInput
                 type="text"
                 placeholder="Username"
                 id="username"
-                onChange={onChangeUsername}
+                onChange={onChangeInput}
               />
             </div>
             <div>
@@ -58,7 +82,7 @@ const SignUp = () => {
                 type="email"
                 placeholder="Email"
                 id="email"
-                onChange={onChangeEmail}
+                onChange={onChangeInput}
               />
             </div>
             <div>
@@ -67,7 +91,7 @@ const SignUp = () => {
                 type="password"
                 placeholder="Password"
                 id="password"
-                onChange={onChangePassword}
+                onChange={onChangeInput}
               />
             </div>
             <Button
@@ -75,8 +99,19 @@ const SignUp = () => {
               type="submit"
               disabled={isSignUpBtnDisabled}
             >
-              Sign Up
+              {isLoading ? (
+                <>
+                  <Spinner size="sm" /> <span className="pl-3">Loading...</span>
+                </>
+              ) : (
+                "SignUp"
+              )}
             </Button>
+            {errorMessage && (
+              <Alert className="mt-5" color="failure">
+                {errorMessage}
+              </Alert>
+            )}
           </form>
           {/* sign in */}
           <div className="flex gap-2 text-sm mt-5">
