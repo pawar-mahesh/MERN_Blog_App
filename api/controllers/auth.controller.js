@@ -15,7 +15,7 @@ export const signup = async (req, res, next) => {
     email.trim().length === 0 ||
     password.trim().length === 0
   ) {
-    next(errorHandler(400, "All fields are required!"));
+    return next(errorHandler(400, "All fields are required!"));
   }
 
   // hash the password using bcryptjs
@@ -44,6 +44,6 @@ export const signup = async (req, res, next) => {
       duplicate = duplicate[0].toUpperCase() + duplicate.slice(1).toLowerCase();
       err.message = `${duplicate} is already exist, please go to log in.`;
     }
-    next(errorHandler(400, err.message));
+    return next(errorHandler(400, err.message));
   }
 };
